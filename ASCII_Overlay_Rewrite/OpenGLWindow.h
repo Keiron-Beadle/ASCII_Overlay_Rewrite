@@ -11,6 +11,7 @@
 #include "shader.h"
 #include "character.h"
 #include "constants.h"
+#include "bitblt_capture.h"
 
 #include <ft2build.h>
 #include <mutex>
@@ -19,18 +20,23 @@
 class OpenGLWindow
 {
 public:
-	OpenGLWindow(int gl_major, int gl_minor, int gl_profile, const std::string& data, std::mutex& data_mutex);
+	static inline bool render_mode = true;
+public:
+	OpenGLWindow(int gl_major, int gl_minor, int gl_profile, std::string* data, std::mutex& data_mutex);
 	~OpenGLWindow();
 	[[nodiscard]] bool window_closing() const;
 	void app_loop();
 private:
 	GLFWwindow* window = nullptr;
 	std::map<char, character> characters;
-	std::string ascii_text;
+	std::string* ascii_text;
 	std::unique_lock<std::mutex> render_lock;
 	const char* const vertexPath = "vertexShader.vert";
+	const char* const vertexAltPath = "vertexAltShader.vert";
+	const char* const fragmentAltPath = "fragmentAltShader.frag";
 	const char* const fragmentPath = "fragmentShader.frag";
 	const shader* my_shader;
+	const shader* alt_shader;
 	unsigned int vao_id{};
 	unsigned int vbo_id{};
 
@@ -40,14 +46,14 @@ private:
 	int pixel_size = constants::render_pixelsize;
 	const int window_width = constants::render_width;
 	const int window_height = constants::render_height;
-	static inline bool render_mode = true;
 private:
 	void init_window(const int gl_major, const int gl_minor, const int gl_profile);
 	void init_gl();
+	void init_render_mode(unsigned int tex);
 	void render_ascii();
 	void load_free_type();
 	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-	static void key_callback(GLFWwindow* window, int key, int scanCode, int action, int mods);
+	void key_callback(int key, int scanCode, int action, int mods);
 	
 };
 

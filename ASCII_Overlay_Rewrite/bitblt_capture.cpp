@@ -1,10 +1,8 @@
 #include "bitblt_capture.h"
 #include "constants.h"
 
-bitblt_capture::bitblt_capture(std::string& data, std::mutex& data_mutex)
+bitblt_capture::bitblt_capture()
 {
-	ascii_text = data;
-	capture_lock = std::unique_lock(data_mutex, std::defer_lock);
 
 	rc_client.left = constants::canvas_width; //2560
 	rc_client.top = 0;
@@ -28,14 +26,11 @@ bitblt_capture::bitblt_capture(std::string& data, std::mutex& data_mutex)
 	lp_bitmap = static_cast<unsigned char*>(GlobalLock(hDIB)); //Lock the screen data in memory and give me a handle to it
 }
 
-void bitblt_capture::capture(const unsigned char*& data) {
+std::string& bitblt_capture::capture(const unsigned char*& data) {
 	//double start = glfwGetTime();
 	take_screen_shot(data);
-	capture_lock.lock();
-	//if (!capture_lock.try_lock())
-	//{ return; }
 	ascii_text = parse_ascii_from_data(data);
-	capture_lock.unlock();
+	return ascii_text;
 	//std::cout << "Capture: " << glfwGetTime() - start << "ms\n";
 }
 

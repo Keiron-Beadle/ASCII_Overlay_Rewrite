@@ -12,14 +12,11 @@ public:
 
 	// 0 = MAKE SCENE DARKER
 	// 1 = MAKE SCENE BRIGHTER
-	static inline float brightness;
+	static inline float brightness = 0.5f;
 	static inline bool bright_mode;
 	static constexpr float upper_space_limit = 0.3f;
 	static constexpr float lower_space_limit = 0.1f;
 
 	static constexpr char ascii_scale[10] = { ' ','.',':',' ','.','+','=','#', '%','@' };
 
-	constants() {
-		brightness = 0.5f;
-	}
 };

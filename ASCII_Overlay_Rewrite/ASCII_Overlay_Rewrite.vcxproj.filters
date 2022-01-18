@@ -60,5 +60,11 @@
     <None Include="vertexShader.vert">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="fragmentAltShader.frag">
+      <Filter>Header Files</Filter>
+    </None>
+    <None Include="vertexAltShader.vert">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

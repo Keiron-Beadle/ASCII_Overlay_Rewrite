@@ -183,9 +183,13 @@
     </Font>
   </ItemGroup>
   <ItemGroup>
+    <None Include="fragmentAltShader.frag">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="fragmentShader.frag">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="vertexAltShader.vert" />
     <None Include="vertexShader.vert">
       <DeploymentContent>true</DeploymentContent>
     </None>
