@@ -51,7 +51,7 @@ void OpenGLWindow::init_gl()
 	glViewport(0, 0, window_width, window_height);
 	load_free_type();
 	my_shader = new shader(vertexPath, fragmentPath);
-	//alt_shader = new shader(vertexAltPath, fragmentAltPath);
+	alt_shader = new shader(vertexAltPath, fragmentAltPath);
 	my_shader->use();
 	//alt_shader->use();
 	glGenVertexArrays(1, &vao_id);
