@@ -108,7 +108,6 @@ void OpenGLWindow::app_loop()
 	//init_render_mode(tex);
 	while (!window_closing())
 	{
-		//double now = glfwGetTime();
 		glClear(GL_COLOR_BUFFER_BIT);
 		if (!render_lock.try_lock())
 		{
@@ -116,7 +115,9 @@ void OpenGLWindow::app_loop()
 			continue;
 		}
 		if (render_mode)
+		{
 			render_ascii();
+		}
 		else
 		{
 			gl_capture.take_screen_shot(data);
@@ -126,7 +127,7 @@ void OpenGLWindow::app_loop()
 		render_lock.unlock();
 		glfwPollEvents();
 		glfwSwapBuffers(window);
-		//std::cout << "Frame time: " << glfwGetTime() - now << " ms" << std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(3));
 	}
 	glDeleteTextures(1, &tex);
 	glfwDestroyWindow(window);
@@ -193,7 +194,7 @@ void OpenGLWindow::key_callback(int key, int scanCode, int action, int mods)
 		break;
 	case GLFW_KEY_F1:
 		if (action == GLFW_RELEASE)
-			constants::bright_mode = !constants::bright_mode;
+			constants::game_mode = !constants::game_mode;
 		break;
 	case GLFW_KEY_F2:
 		if (action == GLFW_RELEASE)

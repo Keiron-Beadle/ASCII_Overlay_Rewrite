@@ -99,7 +99,10 @@ std::string bitblt_capture::parse_ascii_from_data(const unsigned char*& data)
 			const char pixel_value = constants::ascii_scale[avg_grey / (ascii_size - 1)];
 
 			if (pixel_value == '\0') { continue; }
-			else if (pixel_value == ' ') { space_counter++; }
+			else if (pixel_value == ' ')
+			{
+				space_counter++;
+			}
 			else if (pixel_value == '.') { period_counter++; }
 
 			output.push_back(pixel_value);
@@ -126,14 +129,16 @@ void bitblt_capture::adjust_brightness(const int space_counter, const int period
 {
 	const float space_percent = static_cast<float>(space_counter) / 18000;
 	const float period_percent = static_cast<float>(period_counter) / 18000;
-	const float period_threshold = constants::bright_mode ? 0.4f : 0.9f;
+	const float space_threshold_upper = constants::game_mode ? constants::upper_space_limit : 0.6f;
+	const float space_threshold_lower = constants::game_mode ? constants::lower_space_limit : 0.05f;
+	const float period_threshold = constants::game_mode ? 0.4f : 0.9f;
 
-	if (space_percent > constants::upper_space_limit)
+	if (space_percent > space_threshold_upper)
 	{
 		if (constants::brightness < 0.99f)
 			constants::brightness += 0.01f;
 	}
-	else if (space_percent < constants::lower_space_limit)
+	else if (space_percent < space_threshold_lower)
 	{
 		if (constants::brightness > 0.01f)
 			constants::brightness -= 0.01f;
