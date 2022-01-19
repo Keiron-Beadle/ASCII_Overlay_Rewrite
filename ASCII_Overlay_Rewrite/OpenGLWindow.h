@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <map>
+#include <algorithm>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm/vec2.hpp>
@@ -46,6 +47,7 @@ private:
 	int pixel_size = constants::render_pixelsize;
 	const int window_width = constants::render_width;
 	const int window_height = constants::render_height;
+
 private:
 	void init_window(const int gl_major, const int gl_minor, const int gl_profile);
 	void init_gl();
