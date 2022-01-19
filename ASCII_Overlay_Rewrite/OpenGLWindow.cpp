@@ -141,14 +141,12 @@ void OpenGLWindow::app_loop()
 void OpenGLWindow::render_ascii()
 {
 	double now = glfwGetTime();
-	if (ascii_text->size() == 0) { return; }
+	if (ascii_text->empty()) { return; }
 	const float xStart = xPosition;
 	int x = xPosition;
 	int y = window_height;
 	int counter = 0;
 	character ch;
-	//glBindVertexArray(vao_id);
-	//glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 	for (char& c : *ascii_text)
 	{
 		if (c == -1)
@@ -168,13 +166,8 @@ void OpenGLWindow::render_ascii()
 		}
 		const float x_pos = x + ch.bearing.x ;
 		const float y_pos = y - ch.bearing.y;
-		//const float x_pos = 100;
-		//const float y_pos = 100;
 		const float width = ch.size.x;
 		const float height = ch.size.y;
-		//ch.texcoords = 0;
-		//ch.atlas_width = ch.size.x;
-		//ch.atlas_height = ch.size.y;
 		float vertices[6][4] = {
 			//Position                //Tex Coords
 		 { x_pos,     y_pos,   ch.texcoords, (height / ch.atlas_height) },
@@ -185,34 +178,11 @@ void OpenGLWindow::render_ascii()
 		 { x_pos, y_pos - height,       ch.texcoords, 0.0f },
 		 { x_pos + width, y_pos - height,  ch.texcoords + (width / ch.atlas_width), 0.0f }
 		};
-
-		//float vertices[6][4] = {
-		//	//Position                //Tex Coords
-		// { x_pos,     -y_pos,   ch.texcoords, 0.0f },
-		// { x_pos,     -y_pos - height,       ch.texcoords + ch.size.x / ch.atlas_width, 0.0f },
-		// { x_pos + width, -y_pos,       ch.texcoords, ch.size.y / ch.atlas_height},
-
-		// { x_pos + width, -y_pos,   ch.texcoords + ch.size.x, 0.0f },
-		// { x_pos, -y_pos - height,       ch.texcoords,ch.size.y / ch.atlas_height },
-		// { x_pos + width, -y_pos - height,   ch.texcoords + ch.size.x / ch.atlas_width, ch.size.y / ch.atlas_height }
-		//};
 		glBufferSubData(GL_ARRAY_BUFFER, counter * sizeof(vertices), sizeof(vertices), &vertices);
 		counter++;
 		x += 4;
 	}
-	//glActiveTexture(GL_TEXTURE0);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDrawArrays(GL_TRIANGLES, 0, 6 * 17976);
-	std::cout << "Time: " << glfwGetTime() - now << " ms" << std::endl;
-	//glBindVertexArray(0);
-	//glDisable(GL_BLEND);
-	//glBindVertexArray(vao_id);
-	//glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-/*	GLint bufSize = 0;
-	glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufSize);
-	float bufferData[96 * 17976 / sizeof(float)];
-	glGetBufferSubData(GL_ARRAY_BUFFER, 0, bufSize, &bufferData)*/;
 
 }
 
