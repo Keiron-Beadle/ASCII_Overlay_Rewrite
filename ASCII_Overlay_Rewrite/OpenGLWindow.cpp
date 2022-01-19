@@ -136,15 +136,15 @@ void OpenGLWindow::app_loop()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	delete my_shader;
+	delete alt_shader;
 }
 
 void OpenGLWindow::render_ascii()
 {
-	double now = glfwGetTime();
 	if (ascii_text->empty()) { return; }
 	const float xStart = xPosition;
 	int x = xPosition;
-	int y = window_height;
+	int y = yPosition + window_height;
 	int counter = 0;
 	character ch;
 	for (char& c : *ascii_text)
@@ -164,10 +164,10 @@ void OpenGLWindow::render_ascii()
 			counter++;
 			continue;
 		}
-		const float x_pos = x + ch.bearing.x ;
-		const float y_pos = y - ch.bearing.y;
-		const float width = ch.size.x;
-		const float height = ch.size.y;
+		const float x_pos = x + ch.bearing.x * scale;
+		const float y_pos = y - ch.bearing.y * scale;
+		const float width = ch.size.x * scale;
+		const float height = ch.size.y * scale;
 		float vertices[6][4] = {
 			//Position                //Tex Coords
 		 { x_pos,     y_pos,   ch.texcoords, (height / ch.atlas_height) },
@@ -191,12 +191,16 @@ void OpenGLWindow::key_callback(int key, int scanCode, int action, int mods)
 	switch (key)
 	{
 	case GLFW_KEY_D:
+		xPosition += 1;
 		break;
 	case GLFW_KEY_S:
+		yPosition -= 1;
 		break;
 	case GLFW_KEY_W:
+		yPosition += 1;
 		break;
 	case GLFW_KEY_A:
+		xPosition -= 1;
 		break;
 	case GLFW_KEY_F1:
 		if (action == GLFW_RELEASE)
