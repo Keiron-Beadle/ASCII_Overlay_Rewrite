@@ -27,11 +27,9 @@ bitblt_capture::bitblt_capture()
 }
 
 std::string& bitblt_capture::capture(const unsigned char*& data) {
-	//double start = glfwGetTime();
 	take_screen_shot(data);
 	ascii_text = parse_ascii_from_data(data);
 	return ascii_text;
-	//std::cout << "Capture: " << glfwGetTime() - start << "ms\n";
 }
 
 void bitblt_capture::take_screen_shot(const unsigned char*& data)

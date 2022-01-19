@@ -112,6 +112,7 @@ void OpenGLWindow::app_loop()
 	//init_render_mode(tex);
 	while (!window_closing())
 	{
+		//const double now = glfwGetTime();
 		glClear(GL_COLOR_BUFFER_BIT);
 		if (!render_lock.try_lock())
 		{
@@ -131,6 +132,7 @@ void OpenGLWindow::app_loop()
 		render_lock.unlock();
 		glfwPollEvents();
 		glfwSwapBuffers(window);
+		//std::cout << "Render time: " << glfwGetTime() - now << " ms" << std::endl;
 	}
 	glDeleteTextures(1, &tex);
 	glfwDestroyWindow(window);

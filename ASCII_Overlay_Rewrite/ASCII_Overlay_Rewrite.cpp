@@ -33,7 +33,10 @@ int main()
 	std::thread capture_thread(capture_thread_work, capturer, window);
 	auto mask = static_cast<DWORD_PTR>(1) << 0;
 	SetThreadAffinityMask(capture_thread.native_handle(), mask);
+	auto mask2 = static_cast<DWORD_PTR>(1) << 1;
+	SetThreadAffinityMask(GetCurrentThread(), mask2);
 	SetThreadPriority(capture_thread.native_handle(), 15);
+	SetThreadPriority(GetCurrentThread(), 15);
 	while (!window->window_closing())
 	{
 		window->app_loop();
