@@ -34,6 +34,7 @@ std::string& bitblt_capture::capture(const unsigned char*& data) {
 
 void bitblt_capture::take_screen_shot(const unsigned char*& data)
 {
+	double now = glfwGetTime();
 	hdc_window = GetDC(h_wnd);
 	hdc_memDC = CreateCompatibleDC(hdc_window);
 	if (!hdc_memDC) {
@@ -69,7 +70,9 @@ done:
 	DeleteObject(hbm_screen); //Cleanup objects
 	DeleteObject(hdc_memDC);
 	ReleaseDC(h_wnd, hdc_window);
+	ReleaseDC(nullptr, hdc_window);
 	data = lp_bitmap; //Return handle to screenshot data
+	std::cout << "Time: " << glfwGetTime() - now << " ms" << std::endl;
 }
 
 std::string bitblt_capture::parse_ascii_from_data(const unsigned char*& data)
