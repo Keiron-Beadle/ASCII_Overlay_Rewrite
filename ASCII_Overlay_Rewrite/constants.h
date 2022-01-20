@@ -17,6 +17,6 @@ public:
 	static constexpr float upper_space_limit = 0.35f;
 	static constexpr float lower_space_limit = 0.15f;
 
-	static constexpr char ascii_scale[10] = { ' ',' ',',','-','-','+','=','#', '%','@' };
+	static constexpr char ascii_scale[10] = { '-',' ','.',' ','!',',','=','#', '%','@' };
 
 };

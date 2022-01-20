@@ -67,7 +67,7 @@ namespace util::uwp
     {
         WINRT_ASSERT(!device);
 
-        UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT | D3D11_CREATE_DEVICE_DEBUG;
+        UINT flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
         //#ifdef _DEBUG
         //	flags |= D3D11_CREATE_DEVICE_DEBUG;
