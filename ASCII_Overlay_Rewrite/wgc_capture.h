@@ -50,6 +50,7 @@ private:
 	void resize_swap_chain() const;
 	bool try_resize_swap_chain(winrt::Windows::Graphics::Capture::Direct3D11CaptureFrame const& frame);
 	bool try_update_pixel_format();
+	void parse_data_for_ascii_text(D3D11_MAPPED_SUBRESOURCE& data);
 
 private:
 	winrt::Windows::Graphics::Capture::GraphicsCaptureItem m_item{ nullptr };
@@ -60,6 +61,7 @@ private:
 
 	winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice m_device{ nullptr };
 
+	ID3D11Texture2D *m_cpu_tex = NULL;
 	winrt::com_ptr<IDXGISwapChain1> m_swapChain{ nullptr };
 	winrt::com_ptr<ID3D11DeviceContext> m_d3dContext{ nullptr };
 	winrt::Windows::Graphics::DirectX::DirectXPixelFormat m_pixelFormat;
@@ -73,6 +75,15 @@ private:
 	std::atomic<bool> m_captureNextImage = false;
 
 private:
+	static inline auto get_grey_value(const unsigned char* const data, const int row, const int stride, const int col)
+	{
+		const int row_base = row * stride;
+		const int blue = data[row_base + col];
+		const int green = data[row_base + col + 1];
+		const int red = data[row_base + col + 2];
+		const int grey = (red * 0.299) / 3 + (green * 0.587) / 3 + (blue * 0.114) / 3;
+		return constants::brightness * grey;
+	}
 	inline auto CreateDirect3DDevice(IDXGIDevice* dxgi_device)
 	{
 		winrt::com_ptr<::IInspectable> d3d_device;
