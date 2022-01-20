@@ -170,14 +170,20 @@
     <ClCompile Include="ASCII_Overlay_Rewrite.cpp" />
     <ClCompile Include="bitblt_capture.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="monitor_list.cpp" />
     <ClCompile Include="OpenGLWindow.cpp" />
+    <ClCompile Include="wgc_capture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitblt_capture.h" />
     <ClInclude Include="character.h" />
+    <ClInclude Include="composition.interop.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="d3dHelpers.h" />
+    <ClInclude Include="monitor_list.h" />
     <ClInclude Include="OpenGLWindow.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="wgc_capture.h" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="ibm.ttf">

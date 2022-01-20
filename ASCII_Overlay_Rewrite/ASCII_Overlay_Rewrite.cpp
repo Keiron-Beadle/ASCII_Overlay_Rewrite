@@ -5,6 +5,7 @@
 
 #include "OpenGLWindow.h"
 #include "bitblt_capture.h"
+#include "wgc_capture.h"
 
 std::string ascii_text;
 std::mutex ascii_mutex;
@@ -25,23 +26,36 @@ void capture_thread_work(bitblt_capture* capturer, const OpenGLWindow* window)
 	}
 }
 
+void wgc_capture_thread_work(wgc_capture* capturer, const OpenGLWindow* window)
+{
+	capturer->init();
+	while (!window->window_closing())
+	{
+		
+	}
+}
+
 int main()
 {
 	auto window = new OpenGLWindow(3, 3, GLFW_OPENGL_CORE_PROFILE, &ascii_text, std::ref(ascii_mutex));
-	auto capturer = new bitblt_capture();
-
-	std::thread capture_thread(capture_thread_work, capturer, window);
 	auto mask = static_cast<DWORD_PTR>(1) << 0;
-	SetThreadAffinityMask(capture_thread.native_handle(), mask);
+	auto wgc_lock = new std::unique_lock<std::mutex>();
+	auto wgc_capturer = new wgc_capture(*wgc_lock);
+	std::thread wgc_capture_thread(wgc_capture_thread_work, wgc_capturer, window);
+	SetThreadAffinityMask(wgc_capture_thread.native_handle(), mask);
+	SetThreadPriority(wgc_capture_thread.native_handle(), 15);
+	//auto capturer = new bitblt_capture();
+	//std::thread capture_thread(capture_thread_work, capturer, window);
+	//SetThreadAffinityMask(capture_thread.native_handle(), mask);
 	auto mask2 = static_cast<DWORD_PTR>(1) << 1;
 	SetThreadAffinityMask(GetCurrentThread(), mask2);
-	SetThreadPriority(capture_thread.native_handle(), 15);
+	//SetThreadPriority(capture_thread.native_handle(), 15);
 	SetThreadPriority(GetCurrentThread(), 15);
 	while (!window->window_closing())
 	{
 		window->app_loop();
 	}
-	capture_thread.join();
+	//capture_thread.join();
 	delete window;
-	delete capturer;
+	//delete capturer;
 }
