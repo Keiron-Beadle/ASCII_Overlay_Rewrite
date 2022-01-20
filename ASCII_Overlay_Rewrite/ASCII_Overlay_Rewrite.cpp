@@ -28,7 +28,7 @@ void capture_thread_work(bitblt_capture* capturer, const OpenGLWindow* window)
 
 void wgc_capture_thread_work(wgc_capture* capturer, const OpenGLWindow* window)
 {
-	capturer->init();
+	capturer->init(ascii_text, ascii_mutex);
 	while (!window->window_closing())
 	{
 		
@@ -39,8 +39,7 @@ int main()
 {
 	auto window = new OpenGLWindow(3, 3, GLFW_OPENGL_CORE_PROFILE, &ascii_text, std::ref(ascii_mutex));
 	auto mask = static_cast<DWORD_PTR>(1) << 0;
-	auto wgc_lock = new std::unique_lock<std::mutex>();
-	auto wgc_capturer = new wgc_capture(*wgc_lock);
+	auto wgc_capturer = new wgc_capture();
 	std::thread wgc_capture_thread(wgc_capture_thread_work, wgc_capturer, window);
 	SetThreadAffinityMask(wgc_capture_thread.native_handle(), mask);
 	SetThreadPriority(wgc_capture_thread.native_handle(), 15);

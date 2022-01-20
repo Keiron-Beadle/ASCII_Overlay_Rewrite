@@ -24,23 +24,31 @@ auto GetDXGIInterfaceFromObject(winrt::Windows::Foundation::IInspectable const& 
     return result;
 }
 
-wgc_capture::wgc_capture(std::unique_lock<std::mutex>& lock)
+wgc_capture::wgc_capture()
 {
     auto ddDevice = util::uwp::CreateD3DDevice();
     auto dxgiDevice = ddDevice.as<IDXGIDevice>();
     m_device = CreateDirect3DDevice(dxgiDevice.get());
-	auto d3dDevice = GetDXGIInterfaceFromObject<ID3D11Device>(m_device);
+    auto d3dDevice = GetDXGIInterfaceFromObject<ID3D11Device>(m_device);
     d3dDevice->GetImmediateContext(m_d3dContext.put());
     m_pixelFormat = winrt::Windows::Graphics::DirectX::DirectXPixelFormat::R8G8B8A8UInt;
-    m_swapChain = util::uwp::CreateDXGISwapChain(d3dDevice, static_cast<uint32_t>(m_item.Size().Width), 
+
+    m_monitors = std::make_unique<monitor_list>(true);
+    const auto monitor_to_record = m_monitors->GetCurrentMonitors()[1];
+
+    m_item = create_capture_item_for_monitor(monitor_to_record.monitor_handle);
+
+	m_swapChain = util::uwp::CreateDXGISwapChain(d3dDevice, static_cast<uint32_t>(m_item.Size().Width),
         static_cast<uint32_t>(m_item.Size().Height),
-        static_cast<DXGI_FORMAT>(m_pixelFormat), 2);
-    m_lock.swap(lock);
-    m_framePool = winrt::Direct3D11CaptureFramePool::Create(m_device, m_pixelFormat, 2, m_item.Size());
+        static_cast<DXGI_FORMAT>(m_pixelFormat),2);
+    winrt::SizeInt32 itemSize(m_item.Size());
+    m_framePool = winrt::Direct3D11CaptureFramePool::CreateFreeThreaded(m_device, 
+        winrt::Windows::Graphics::DirectX::DirectXPixelFormat::R16G16B16A16Float, 1, itemSize);
     m_session = m_framePool.CreateCaptureSession(m_item);
     m_lastSize = m_item.Size();
     m_framePool.FrameArrived({ this, &wgc_capture::on_frame_arrived });
     WINRT_ASSERT(m_session != nullptr);
+
 }
 
 void wgc_capture::start_capture()
@@ -56,12 +64,13 @@ winrt::Windows::UI::Composition::ICompositionSurface wgc_capture::create_surface
     return util::uwp::CreateCompositionSurfaceForSwapChain(compositor, m_swapChain.get());
 }
 
-void wgc_capture::init()
+void wgc_capture::init(std::string& ascii_text, std::mutex& ascii_mutex)
 {
     //Initialise recording
-    m_monitors = std::make_unique<monitor_list>(true);
-    auto monitor_to_record = m_monitors->GetCurrentMonitors()[1];
-    try_start_capture_from_hmonitor(monitor_to_record.monitor_handle);
+    this->ascii_text = &ascii_text;
+    m_lock = std::unique_lock(ascii_mutex, std::defer_lock);
+
+    start_capture_from_item(m_item);
 }
 
 void wgc_capture::close()

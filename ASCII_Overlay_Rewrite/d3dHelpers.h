@@ -107,9 +107,9 @@ namespace util::uwp
     {
         auto dxgiDevice = device.as<IDXGIDevice2>();
         winrt::com_ptr<IDXGIAdapter> adapter;
-    	winrt::check_hresult(dxgiDevice->GetParent(__uuidof(IDXGIAdapter), adapter.put_void()));
+    	winrt::check_hresult(dxgiDevice->GetParent(winrt::guid("2411e7e1-12ac-4ccf-bd14-9798e8534dc0"), adapter.put_void()));
         winrt::com_ptr<IDXGIFactory2> factory;
-    	winrt::check_hresult(adapter->GetParent(__uuidof(IDXGIFactory2), factory.put_void()));
+    	winrt::check_hresult(adapter->GetParent(winrt::guid("50c83a1c-e072-4c48-87b0-3630fa36a6d0"), factory.put_void()));
 
         winrt::com_ptr<IDXGISwapChain1> swapchain;
         winrt::check_hresult(factory->CreateSwapChainForComposition(device.get(), desc, nullptr, swapchain.put()));
@@ -130,8 +130,12 @@ namespace util::uwp
         desc.Scaling = DXGI_SCALING_STRETCH;
         desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
         desc.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
+        winrt::com_ptr<IDXGISwapChain> swapChain;
+        winrt::com_ptr<IDXGIFactory> factory;
 
-        return CreateDXGISwapChain(device, &desc);
+        IDXGIFactory::CreateSwapChain(device.get(), desc, swapChain.put());
+        return swapChain;
+        //return CreateDXGISwapChain(device, &desc);
     }
 
     inline auto CopyD3DTexture(winrt::com_ptr<ID3D11Device> const& device, winrt::com_ptr<ID3D11Texture2D> const& texture, bool asStagingTexture)

@@ -84,5 +84,6 @@
     <None Include="vertexAltShader.vert">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

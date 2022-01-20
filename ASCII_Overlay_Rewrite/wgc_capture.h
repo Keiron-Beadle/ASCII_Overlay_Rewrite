@@ -1,4 +1,6 @@
 #pragma once
+#include <Unknwn.h>
+#include <inspectable.h>
 #include <Windows.h>
 #include <iostream>
 #include <fstream>
@@ -18,7 +20,7 @@
 class wgc_capture
 {
 public:
-	wgc_capture(std::unique_lock<std::mutex>& lock);
+	wgc_capture();
 
 	~wgc_capture() { close(); }
 
@@ -36,7 +38,7 @@ public:
 	}
 
 	bool is_cursor_enabled() { CheckClosed(); return m_session.IsCursorCaptureEnabled(); }
-	void init();
+	void init(std::string& ascii_text, std::mutex& ascii_mutex);
 	void close();
 private:
 	void on_frame_arrived(
@@ -62,6 +64,7 @@ private:
 	winrt::com_ptr<ID3D11DeviceContext> m_d3dContext{ nullptr };
 	winrt::Windows::Graphics::DirectX::DirectXPixelFormat m_pixelFormat;
 
+	std::string* ascii_text;
 	std::unique_ptr<monitor_list> m_monitors;
 	std::unique_lock<std::mutex> m_lock;
 	std::optional<winrt::Windows::Graphics::DirectX::DirectXPixelFormat> m_pixelFormatUpdate = std::nullopt;
@@ -87,7 +90,7 @@ private:
 	{
 		const auto interop_factory = winrt::get_activation_factory<winrt::Windows::Graphics::Capture::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
 		winrt::Windows::Graphics::Capture::GraphicsCaptureItem item = { nullptr };
-		winrt::check_hresult(interop_factory->CreateForMonitor(handle, __uuidof(ABI::Windows::Graphics::Capture::IGraphicsCaptureItem), winrt::put_abi(item)));
+		winrt::check_hresult(interop_factory->CreateForMonitor(handle, winrt::guid("79c3f95b-31f7-4ec2-a464-632ef5d30760"), winrt::put_abi(item)));
 		return item;
 	}
 };
