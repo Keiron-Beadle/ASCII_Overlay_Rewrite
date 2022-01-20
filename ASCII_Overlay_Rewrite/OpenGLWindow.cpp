@@ -59,7 +59,7 @@ void OpenGLWindow::init_gl()
 	glGenBuffers(1, &vbo_id);
 	glBindVertexArray(vao_id);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id); //17976
-	glBufferData(GL_ARRAY_BUFFER, 17976 * 4 * 6 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 10 * 4 * 6 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
@@ -143,13 +143,17 @@ void OpenGLWindow::app_loop()
 
 void OpenGLWindow::render_ascii()
 {
-	if (ascii_text->empty()) { return; }
+	//if (ascii_text->empty()) { return; }
 	const float xStart = xPosition;
-	int x = xPosition;
-	int y = yPosition + window_height;
+	//int x = xPosition;
+	//int y = yPosition + window_height;
+	int x = 200;
+	int y = 400;
 	int counter = 0;
+	
 	character ch;
-	for (char& c : *ascii_text)
+	std::string test_text = " #  @   # ";
+	for (char& c : test_text)
 	{
 		if (c == -1)
 		{
@@ -172,19 +176,19 @@ void OpenGLWindow::render_ascii()
 		const float height = ch.size.y * scale;
 		float vertices[6][4] = {
 			//Position                //Tex Coords
-		 { x_pos,     y_pos,   ch.texcoords, (height / ch.atlas_height) },
-		 { x_pos,     y_pos - height,       ch.texcoords, 0.0f },
-		 { x_pos + width, y_pos,       ch.texcoords + (width / ch.atlas_width), (height / ch.atlas_height)},
+		 { x_pos,     y_pos,   ch.texcoords.x, ch.texcoords.y },
+		 { x_pos,     y_pos - height,       ch.texcoords.x, 0.0f },
+		 { x_pos + width, y_pos,       ch.texcoords.x + (width / ch.atlas_width), ch.texcoords.y},
 
-		 { x_pos + width, y_pos,   ch.texcoords + (width / ch.atlas_width), (height / ch.atlas_height) },
-		 { x_pos, y_pos - height,       ch.texcoords, 0.0f },
-		 { x_pos + width, y_pos - height,  ch.texcoords + (width / ch.atlas_width), 0.0f }
+		 { x_pos + width, y_pos,   ch.texcoords.x + (width / ch.atlas_width), ch.texcoords.y },
+		 { x_pos, y_pos - height,       ch.texcoords.x, 0.0f },
+		 { x_pos + width, y_pos - height,  ch.texcoords.x + (width / ch.atlas_width), 0.0f }
 		};
 		glBufferSubData(GL_ARRAY_BUFFER, counter * sizeof(vertices), sizeof(vertices), &vertices);
 		counter++;
 		x += 4;
 	}
-	glDrawArrays(GL_TRIANGLES, 0, 6 * 17976);
+	glDrawArrays(GL_TRIANGLES, 0, 6 * 10); //17976
 
 }
 
@@ -264,11 +268,11 @@ void OpenGLWindow::load_free_type()
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, atlas_width, h, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, atlas_width, h, 0, GL_RED, GL_UNSIGNED_BYTE, 0);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	//Fill atlas
 	int x = 0;
 	for (const char c : constants::ascii_scale)
@@ -280,35 +284,52 @@ void OpenGLWindow::load_free_type()
 		ch = {
 			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			static_cast<float>(x) / static_cast<float>(atlas_width),
+			glm::vec2(static_cast<float>(face->glyph->bitmap.width) / static_cast<float>(atlas_width),
+			static_cast<float>(face->glyph->bitmap.rows) / static_cast<float>(h)),
 			static_cast<float>(atlas_width),
 			static_cast<float>(h),
 			static_cast<unsigned int>(face->glyph->advance.x >> 6)
 		};
 		characters.insert(std::pair(c, ch));
 
+		//if (c == '@')
+		//{
+		//	std::ofstream ofs("first.ppm", std::ios_base::out);
+		//	ofs << "P3" << std::endl << 11 << ' ' << 11 << std::endl << "255" << std::endl;
+		//	for (int i = 0; i < 11 * 11; i++)
+		//	{
+		//		int value = static_cast<int>(face->glyph->bitmap.buffer[i]);
+		//		ofs << ' ' << value << ' ' << value << ' ' << value << ' ';
+
+		//		if (i % 11 == 0 && i != 0)
+		//		{
+		//			ofs << ' ' << std::endl;
+		//		}
+		//	}
+		//	ofs.close();
 		glTexSubImage2D(GL_TEXTURE_2D, 0, x, 0, g->bitmap.width, g->bitmap.rows, GL_RED,
 			GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
 		x += g->bitmap.width;
-
+		//}
+		
 	}
-	//GLubyte new_array[57 *11];
-	//int sidelength;
-	//glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &sidelength);
-	//glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_BYTE, new_array);
-	//std::ofstream ofs("first.ppm", std::ios_base::out);
-	//ofs << "P3" << std::endl << 57 << ' ' << 11 << std::endl << "255" << std::endl;
-	//for (int i = 0; i < 11 * 57; i++)
-	//{
-	//	int value = static_cast<int>(new_array[i]);
-	//	ofs << ' ' << value << ' ' << value << ' ' << value << ' ';
+	GLubyte new_array[74 * 11];
+	int sidelength;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &sidelength);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_BYTE, new_array);
+	std::ofstream ofs("first.ppm", std::ios_base::out);
+	ofs << "P3" << std::endl << 74 << ' ' << 11 << std::endl << "255" << std::endl;
+	for (int i = 0; i < 11 * 74; i++)
+	{
+		int value = static_cast<int>(new_array[i]);
+		ofs << ' ' << value << ' ' << value << ' ' << value << ' ';
 
-	//	if (i % 57  == 0 && i != 0)
-	//	{
-	//		ofs <<' ' << std::endl;
-	//	}
-	//}
-	//ofs.close();
+		if (i % 74 == 0 && i != 0)
+		{
+			ofs <<' ' << std::endl;
+		}
+	}
+	ofs.close();
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
 }

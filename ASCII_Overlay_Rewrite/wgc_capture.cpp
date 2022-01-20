@@ -229,7 +229,7 @@ void wgc_capture::parse_data_for_ascii_text(D3D11_MAPPED_SUBRESOURCE& resource)
         row += constants::capture_pixelsize;
         ascii_text->push_back(-1);
     }
-    //adjust_brightness(space_counter, period_counter);
+	adjust_brightness(space_counter, period_counter);
 }
 
 

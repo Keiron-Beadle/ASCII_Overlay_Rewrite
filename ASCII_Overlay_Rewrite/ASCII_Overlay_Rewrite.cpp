@@ -40,9 +40,9 @@ int main()
 	auto window = new OpenGLWindow(3, 3, GLFW_OPENGL_CORE_PROFILE, &ascii_text, std::ref(ascii_mutex));
 	auto mask = static_cast<DWORD_PTR>(1) << 0;
 	auto wgc_capturer = new wgc_capture();
-	std::thread wgc_capture_thread(wgc_capture_thread_work, wgc_capturer, window);
-	SetThreadAffinityMask(wgc_capture_thread.native_handle(), mask);
-	SetThreadPriority(wgc_capture_thread.native_handle(), 15);
+	//std::thread wgc_capture_thread(wgc_capture_thread_work, wgc_capturer, window);
+	//SetThreadAffinityMask(wgc_capture_thread.native_handle(), mask);
+	//SetThreadPriority(wgc_capture_thread.native_handle(), 15);
 	//auto capturer = new bitblt_capture();
 	//std::thread capture_thread(capture_thread_work, capturer, window);
 	//SetThreadAffinityMask(capture_thread.native_handle(), mask);
