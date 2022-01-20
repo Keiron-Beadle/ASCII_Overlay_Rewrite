@@ -130,12 +130,8 @@ namespace util::uwp
         desc.Scaling = DXGI_SCALING_STRETCH;
         desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
         desc.AlphaMode = DXGI_ALPHA_MODE_PREMULTIPLIED;
-        winrt::com_ptr<IDXGISwapChain> swapChain;
-        winrt::com_ptr<IDXGIFactory> factory;
 
-        IDXGIFactory::CreateSwapChain(device.get(), desc, swapChain.put());
-        return swapChain;
-        //return CreateDXGISwapChain(device, &desc);
+        return CreateDXGISwapChain(device, &desc);
     }
 
     inline auto CopyD3DTexture(winrt::com_ptr<ID3D11Device> const& device, winrt::com_ptr<ID3D11Texture2D> const& texture, bool asStagingTexture)

@@ -31,7 +31,7 @@ wgc_capture::wgc_capture()
     m_device = CreateDirect3DDevice(dxgiDevice.get());
     auto d3dDevice = GetDXGIInterfaceFromObject<ID3D11Device>(m_device);
     d3dDevice->GetImmediateContext(m_d3dContext.put());
-    m_pixelFormat = winrt::Windows::Graphics::DirectX::DirectXPixelFormat::R8G8B8A8UInt;
+    m_pixelFormat = winrt::Windows::Graphics::DirectX::DirectXPixelFormat::R16G16B16A16Float;
 
     m_monitors = std::make_unique<monitor_list>(true);
     const auto monitor_to_record = m_monitors->GetCurrentMonitors()[1];
@@ -41,6 +41,7 @@ wgc_capture::wgc_capture()
 	m_swapChain = util::uwp::CreateDXGISwapChain(d3dDevice, static_cast<uint32_t>(m_item.Size().Width),
         static_cast<uint32_t>(m_item.Size().Height),
         static_cast<DXGI_FORMAT>(m_pixelFormat),2);
+
     winrt::SizeInt32 itemSize(m_item.Size());
     m_framePool = winrt::Direct3D11CaptureFramePool::CreateFreeThreaded(m_device, 
         winrt::Windows::Graphics::DirectX::DirectXPixelFormat::R16G16B16A16Float, 1, itemSize);
@@ -95,20 +96,19 @@ void wgc_capture::on_frame_arrived(winrt::Windows::Graphics::Capture::Direct3D11
     {
         auto frame = sender.TryGetNextFrame();
         swapChainResizedToFrame = try_resize_swap_chain(frame);
-
         winrt::com_ptr<ID3D11Texture2D> backBuffer;
         winrt::check_hresult(m_swapChain->GetBuffer(0, winrt::guid_of<ID3D11Texture2D>(), backBuffer.put_void()));
         auto surfaceTexture = GetDXGIInterfaceFromObject<ID3D11Texture2D>(frame.Surface());
         m_d3dContext->CopyResource(backBuffer.get(), surfaceTexture.get());
     }
-    DXGI_PRESENT_PARAMETERS present_parameters{};
-    m_swapChain->Present1(1, 0, &present_parameters);
-    swapChainResizedToFrame = swapChainResizedToFrame || try_update_pixel_format();
+    //DXGI_PRESENT_PARAMETERS present_parameters{};
+    //m_swapChain->Present1(1, 0, &present_parameters);
+    //swapChainResizedToFrame = swapChainResizedToFrame || try_update_pixel_format();
 
-    if (swapChainResizedToFrame)
-    {
-        m_framePool.Recreate(m_device, m_pixelFormat, 2, m_lastSize);
-    }
+    //if (swapChainResizedToFrame)
+    //{
+    //    m_framePool.Recreate(m_device, m_pixelFormat, 2, m_lastSize);
+    //}
 }
 
 void wgc_capture::start_capture_from_item(winrt::Windows::Graphics::Capture::GraphicsCaptureItem item)
