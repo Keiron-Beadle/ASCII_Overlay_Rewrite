@@ -33,6 +33,8 @@ void wgc_capture_thread_work(wgc_capture* capturer, const OpenGLWindow* window)
 	{
 		
 	}
+	capturer->close();
+	
 }
 
 int main()

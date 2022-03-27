@@ -199,7 +199,9 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="packages.config" />
-    <None Include="vertexAltShader.vert" />
+    <None Include="vertexAltShader.vert">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="vertexShader.vert">
       <DeploymentContent>true</DeploymentContent>
     </None>

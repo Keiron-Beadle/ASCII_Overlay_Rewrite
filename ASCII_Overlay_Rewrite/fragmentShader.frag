@@ -1,7 +1,6 @@
 #version 330 core 
 
 in vec2 TexCoords;
-in vec4 Coords;
 out vec4 FragColor;
 
 uniform sampler2D text;

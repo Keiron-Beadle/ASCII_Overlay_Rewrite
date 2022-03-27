@@ -64,6 +64,7 @@ inline shader::shader(const char* vertexPath, const char* fragmentPath) {
 	glShaderSource(vertex, 1, &vShaderCode, nullptr);
 	glCompileShader(vertex);
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+
 	if (!success) {
 		glGetShaderInfoLog(vertex, 512, nullptr, infoLog);
 		std::cout << "ERROR: SHADER VERTEX COMPILATION FAILED\n" << infoLog << std::endl;

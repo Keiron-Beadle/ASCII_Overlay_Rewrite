@@ -79,25 +79,25 @@ private:
 	{
 		const float space_percent = static_cast<float>(space_counter) / 18000;
 		const float period_percent = static_cast<float>(period_counter) / 18000;
-		const float space_threshold_upper = constants::game_mode ? constants::upper_space_limit : 0.6f;
+		const float space_threshold_upper = constants::game_mode ? constants::upper_space_limit : 0.4f;
 		const float space_threshold_lower = constants::game_mode ? constants::lower_space_limit : 0.05f;
-		const float period_threshold = constants::game_mode ? 0.4f : 0.9f;
+		const float period_threshold = constants::game_mode ? 0.3f : 0.4f;
 
-		if (space_percent > space_threshold_upper)
-		{
-			if (constants::brightness < 0.99f)
-				constants::brightness += 0.01f;
-		}
-		else if (space_percent < space_threshold_lower)
-		{
-			if (constants::brightness > 0.01f)
-				constants::brightness -= 0.01f;
-		}
-		else if (period_percent > period_threshold)
-		{
-			if (constants::brightness < 0.99f)
-				constants::brightness += 0.01f;
-		}
+		//if (space_percent > space_threshold_upper)
+		//{
+		//	if (constants::brightness < 0.99f)
+		//		constants::brightness += 0.01f;
+		//}
+		//else if (space_percent < space_threshold_lower)
+		//{
+		//	if (constants::brightness > 0.01f)
+		//		constants::brightness -= 0.01f;
+		//}
+		//else if (period_percent > period_threshold)
+		//{
+		//	if (constants::brightness < 0.99f)
+		//		constants::brightness += 0.01f;
+		//}
 	}
 	static inline auto get_grey_value(const unsigned char* const data, const int row, const int stride, const int col)
 	{

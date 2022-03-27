@@ -52,12 +52,11 @@ void OpenGLWindow::init_gl()
 	//glEnable(GL_TEXTURE_2D);
 	load_free_type();
 	my_shader = new shader(vertexPath, fragmentPath);
-	//alt_shader = new shader(vertexAltPath, fragmentAltPath);
+	alt_shader = new shader(vertexAltPath, fragmentAltPath);
 	my_shader->use();
-	//alt_shader->use();
 	glGenVertexArrays(1, &vao_id);
-	glGenBuffers(1, &vbo_id);
 	glBindVertexArray(vao_id);
+	glGenBuffers(1, &vbo_id);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_id); //17976
 	glBufferData(GL_ARRAY_BUFFER, 4 * 6 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
@@ -70,49 +69,54 @@ void OpenGLWindow::init_gl()
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(window_width), 0.0f, static_cast<float>(window_height));
 	glUniformMatrix4fv(glGetUniformLocation(my_shader->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	glUniform3f(glGetUniformLocation(my_shader->ID, "textColor"), 1.0f, 1.0f, 1.0f);
-	glUniform1f(glGetUniformLocation(my_shader->ID, "text"), GL_TEXTURE0);
+	my_shader->set_int("text", GL_TEXTURE0);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glBindVertexArray(0);
 }
 
-void OpenGLWindow::init_render_mode(unsigned int tex)
+void OpenGLWindow::init_render_mode()
 {
-	unsigned int vbo;
-	glEnableVertexAttribArray(1);
+	//glGenVertexArrays(1, &vao_id_canvas);
+	glBindVertexArray(vao_id);
+	alt_shader->use();
 	const float vertices[] = {
-	1.0f,1.0f,0.0f,   1.0f, 0.0f,
-	-1.0f, 1.0f,0.0f, 0.0f, 0.0f,
-	1.0f,-1.0f, 0.0f, 1.0f, 1.0f,
+	1.0f,1.0f,   1.0f, 0.0f,
+	-1.0f, 1.0f, 0.0f, 0.0f ,
+	1.0f,-1.0f, 1.0f, 1.0f,
 
-	1.0f, -1.0f, 0.0f, 1.0f, 1.0f,
-	-1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
-	-1.0f, 1.0f, 0.0f, 0.0f, 0.0f
+	1.0f, -1.0f, 1.0f, 1.0f,
+	-1.0f, -1.0f, 0.0f, 1.0f,
+		-1.0f, 1.0f, 0.0f, 0.0f
 	};
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glGenBuffers(1, &vbo_id_canvas);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_id_canvas);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_2D, tex);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4 * 6 * sizeof(float), GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+	glGenTextures(1, &tex_canvas);
+	glActiveTexture(GL_TEXTURE0 + 1);
+	glBindTexture(GL_TEXTURE_2D, tex_canvas);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glUniform1f(glGetUniformLocation(my_shader->ID, "myTex"), 0);
-
+	//glUniform1f(glGetUniformLocation(alt_shader->ID, "myTex"), GL_TEXTURE0 + 1);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0);
 }
 
 void OpenGLWindow::app_loop()
 {
-	//it's own capture device for when not rendering ASCII and not in need of a performance boost.
-	const unsigned char* data;
-	unsigned int tex = 0;
+	//bitblt is slower than wgc, but when displaying non-ascii renders
+	//the performance boost is unnecessary.
 	bitblt_capture gl_capture;
-	//init_render_mode(tex);
+	//init_render_mode();
+	my_shader->use();
+	//render_mode = false;
+	//alt_shader->use();
 	while (!window_closing())
 	{
-		//const double now = glfwGetTime();
 		glClear(GL_COLOR_BUFFER_BIT);
 		if (!render_lock.try_lock())
 		{
@@ -121,34 +125,60 @@ void OpenGLWindow::app_loop()
 		}
 		if (render_mode)
 		{
+			glBindVertexArray(vao_id);
+			//glActiveTexture(GL_TEXTURE0);
 			render_ascii();
+
+			glBindVertexArray(0);
+			//glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		else
 		{
-			gl_capture.take_screen_shot(data);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, constants::render_width, constants::render_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-			glDrawArrays (GL_TRIANGLES, 0,6);
+			//glActiveTexture(GL_TEXTURE0 + 1);
+			//render_desktop(gl_capture);
+			//glBindVertexArray(0);
+			//glBindTexture(GL_TEXTURE_2D, 0);
+			//glActiveTexture(GL_TEXTURE0);
 		}
 		render_lock.unlock();
 		glfwPollEvents();
 		glfwSwapBuffers(window);
-		//std::cout << "Render time: " << glfwGetTime() - now << " ms" << std::endl;
 	}
-	glDeleteTextures(1, &tex);
+	glDeleteTextures(1, &tex_canvas);
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	delete my_shader;
 	delete alt_shader;
+	exit(0);
 }
 
-void OpenGLWindow::render_ascii()
+void OpenGLWindow::render_desktop(bitblt_capture &gl_capture)
+{
+	const unsigned char* data;
+	//This is used for drawing desktop capture, no ascii
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_id_canvas);
+	glActiveTexture(GL_TEXTURE0 + 1);
+	glBindTexture(GL_TEXTURE_2D, tex_canvas);
+	glUniform1f(glGetUniformLocation(alt_shader->ID, "myTex"), GL_TEXTURE0 + 1);
+	//float nhnb[6][4];
+	//glGetBufferSubData(GL_ARRAY_BUFFER, 0, 96, nhnb);
+	//glUniform1f(glGetUniformLocation(alt_shader->ID, "myTex"), GL_TEXTURE0 + 1);
+	alt_shader->set_int("myTex", GL_TEXTURE0 + 1);
+	gl_capture.take_screen_shot(data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, constants::render_width, constants::render_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glBindVertexArray(0);
+}
+
+void OpenGLWindow::render_ascii() const
 {
 	if (ascii_text->empty()) { return; }
+
 	const float xStart = xPosition;
 	int x = xPosition;
 	int y = yPosition + window_height;
 	glBindVertexArray(vao_id);
-
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
 	character ch;
 	for (char& c : *ascii_text)
 	{
@@ -162,7 +192,6 @@ void OpenGLWindow::render_ascii()
 		if (c == ' ')
 		{
 			x += ch.advance/3 ;
-			//x += 4;
 			continue;
 		}
 		const float x_pos = x + ch.bearing.x * scale;
@@ -181,12 +210,11 @@ void OpenGLWindow::render_ascii()
 		};
 		glBindTexture(GL_TEXTURE_2D, ch.tex);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices);
-		glDrawArrays(GL_TRIANGLES, 0, 6); //17976
+		glDrawArrays(GL_TRIANGLES, 0, 6); 
 		x += ch.advance / 3;
 	}
 	glBindVertexArray(0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+	// 3 milliseconds
 }
 
 void OpenGLWindow::key_callback(int key, int scanCode, int action, int mods)
@@ -197,13 +225,25 @@ void OpenGLWindow::key_callback(int key, int scanCode, int action, int mods)
 		xPosition += 1;
 		break;
 	case GLFW_KEY_S:
-		yPosition -= 1;
+		yPosition += 1;
 		break;
 	case GLFW_KEY_W:
-		yPosition += 1;
+		yPosition -= 1;
 		break;
 	case GLFW_KEY_A:
 		xPosition -= 1;
+		break;
+	case GLFW_KEY_O:
+		if (constants::brightness < 0.99f)
+		{
+			constants::brightness += 0.01f;
+		}
+		break;
+	case GLFW_KEY_L:
+		if (constants::brightness > 0.01f)
+		{
+			constants::brightness -= 0.01f;
+		}
 		break;
 	case GLFW_KEY_F1:
 		if (action == GLFW_RELEASE)
@@ -215,11 +255,19 @@ void OpenGLWindow::key_callback(int key, int scanCode, int action, int mods)
 			render_mode = !render_mode;
 			if (render_mode)
 			{
+				glActiveTexture(GL_TEXTURE0);
 				my_shader->use();
+				//glBindVertexArray(vao_id);
+				//glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+				///glVertexAttribPointer(0, 96, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
 			}
 			else
 			{
+				glActiveTexture(GL_TEXTURE0 + 1);
 				alt_shader->use();
+				//glBindVertexArray(vao_id_canvas);
+				glBindBuffer(GL_ARRAY_BUFFER, vbo_id_canvas);
+				//glVertexAttribPointer(0, 96, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
 			}
 		}
 		break;
@@ -261,7 +309,7 @@ void OpenGLWindow::load_free_type()
 
 	//Create atlas
 	//unsigned int tex;
-	//glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0);
 	//glGenTextures(1, &tex);
 	//glBindTexture(GL_TEXTURE_2D, tex);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

@@ -40,6 +40,10 @@ private:
 	const shader* alt_shader;
 	unsigned int vao_id{};
 	unsigned int vbo_id{};
+	//unsigned int vao_id_canvas{};
+	unsigned int vbo_id_canvas{};
+	unsigned int tex_canvas = 0;
+
 
 	const float scale = 0.68f;
 	int xPosition = 0;
@@ -51,8 +55,9 @@ private:
 private:
 	void init_window(const int gl_major, const int gl_minor, const int gl_profile);
 	void init_gl();
-	void init_render_mode(unsigned int tex);
-	void render_ascii();
+	void init_render_mode();
+	void render_ascii() const;
+	void render_desktop(bitblt_capture &gl_capture);
 	void load_free_type();
 	static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	void key_callback(int key, int scanCode, int action, int mods);

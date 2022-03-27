@@ -6,7 +6,8 @@ in vec2 TexCoord;
 out vec4 FragColor;
 
 void main(){
-    vec4 sampled = texture(myTex,TexCoord);
-    FragColor = vec4(sampled.z,sampled.y,sampled.x,sampled.w);
-    //FragColor = vColour; //BGRA
+    //vec4 sampled = texture(myTex,TexCoord);
+    //FragColor = vec4(sampled.z,sampled.y,sampled.x,sampled.w);
+    FragColor = vColour;
+
 }

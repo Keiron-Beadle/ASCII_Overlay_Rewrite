@@ -102,6 +102,8 @@ void wgc_capture::close()
         m_item = nullptr;
     }
 }
+//std::chrono::time_point now = std::chrono::high_resolution_clock::now();
+
 
 void wgc_capture::on_frame_arrived(winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool const& sender,
 	winrt::Windows::Foundation::IInspectable const& args)
@@ -121,7 +123,11 @@ void wgc_capture::on_frame_arrived(winrt::Windows::Graphics::Capture::Direct3D11
         m_lock.lock();
         parse_data_for_ascii_text(cpu_subresource);
         m_lock.unlock();
-
+        //std::chrono::time_point temp = std::chrono::high_resolution_clock::now();
+        //std::chrono::duration<double> span = std::chrono::duration_cast<std::chrono::duration<double>>(temp - now);
+        //std::cout << span.count() << " seconds" << std::endl;
+        //now = temp;
+        // 7 milliseconds~ release
     }
     //DXGI_PRESENT_PARAMETERS present_parameters{};
     //m_swapChain->Present1(1, 0, &present_parameters);
@@ -195,6 +201,7 @@ bool wgc_capture::try_update_pixel_format()
 
 void wgc_capture::parse_data_for_ascii_text(D3D11_MAPPED_SUBRESOURCE& resource)
 {
+    //std::chrono::time_point now = std::chrono::high_resolution_clock::now();
     const unsigned char* data = static_cast<unsigned char*>(resource.pData);
     //For automatically adjusting brightness I keep a count of some characters, so I can adjust
 //brightness to keep a ratio of these on-screen, start at 1 so no divide by 0 error
@@ -230,6 +237,9 @@ void wgc_capture::parse_data_for_ascii_text(D3D11_MAPPED_SUBRESOURCE& resource)
         ascii_text->push_back(-1);
     }
 	adjust_brightness(space_counter, period_counter);
+    //std::chrono::duration<double> span = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - now);
+    //std::cout << span.count() << " seconds" << std::endl;
+    //0.5 milliseconds~ release
 }
 
 
