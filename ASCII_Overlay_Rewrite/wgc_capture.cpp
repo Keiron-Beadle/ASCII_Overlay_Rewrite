@@ -1,5 +1,7 @@
 #include "wgc_capture.h"
-
+#include <helper_cuda.h>
+#include <helper_math.h>
+#include "cuda_runtime.h"
 #include "d3dHelpers.h"
 
 namespace winrt
@@ -78,6 +80,9 @@ winrt::Windows::UI::Composition::ICompositionSurface wgc_capture::create_surface
     CheckClosed();
     return util::uwp::CreateCompositionSurfaceForSwapChain(compositor, m_swapChain.get());
 }
+
+__global__ void asciiMultKernel(uchar4 *input, )
+
 
 void wgc_capture::init(std::string& ascii_text, std::mutex& ascii_mutex)
 {
